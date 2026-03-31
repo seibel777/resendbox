@@ -106,8 +106,10 @@ const routes = [
   },
 ];
 
+const routerBasename = import.meta.env.BASE_URL === "/" ? "/" : import.meta.env.BASE_URL.replace(/\/$/, "");
+
 export const router = isTauriRuntime()
   ? createHashRouter(routes)
   : createBrowserRouter(routes, {
-      basename: import.meta.env.BASE_URL,
+      basename: routerBasename,
     });

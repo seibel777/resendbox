@@ -14,6 +14,33 @@ import { router } from "@/app/router";
 import { registerServiceWorker } from "@/lib/pwa";
 import "@/styles.css";
 
+function restoreRedirectedBrowserPath() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const currentUrl = new URL(window.location.href);
+  const redirect = currentUrl.searchParams.get("redirect");
+
+  if (!redirect) {
+    return;
+  }
+
+  const targetUrl = new URL(redirect, window.location.origin);
+  const basePath = import.meta.env.BASE_URL === "/" ? "" : import.meta.env.BASE_URL.replace(/\/$/, "");
+  let pathname = targetUrl.pathname;
+
+  if (basePath && pathname.startsWith(basePath)) {
+    pathname = pathname.slice(basePath.length) || "/";
+  }
+
+  const normalizedPath = pathname.startsWith("/") ? pathname : `/${pathname}`;
+  const nextUrl = `${basePath}${normalizedPath}${targetUrl.search}${targetUrl.hash}`;
+
+  window.history.replaceState(null, "", nextUrl);
+}
+
+restoreRedirectedBrowserPath();
 void registerServiceWorker();
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

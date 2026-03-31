@@ -1,15 +1,42 @@
-const CACHE_NAME = "resendbox-v1";
+const CACHE_NAME = "resendbox-static-v2";
+const CACHEABLE_DESTINATIONS = new Set(["style", "script", "font", "image", "manifest"]);
 
 self.addEventListener("install", (event) => {
   event.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+
+          return Promise.resolve(false);
+        }),
+      ),
+    ).then(() => self.clients.claim()),
+  );
 });
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") {
+    return;
+  }
+
+  const url = new URL(event.request.url);
+
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  if (event.request.mode === "navigate") {
+    return;
+  }
+
+  if (!CACHEABLE_DESTINATIONS.has(event.request.destination)) {
     return;
   }
 

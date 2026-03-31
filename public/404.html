@@ -5,7 +5,13 @@
     <title>ResendBox</title>
     <script>
       (function () {
-        var base = "/resendbox/";
+        var searchParams = new URLSearchParams(window.location.search);
+
+        if (searchParams.has("redirect")) {
+          return;
+        }
+
+        var base = window.location.pathname.indexOf("/resendbox/") === 0 ? "/resendbox/" : "/";
         var redirect = window.location.pathname + window.location.search + window.location.hash;
         window.location.replace(base + "?redirect=" + encodeURIComponent(redirect));
       })();

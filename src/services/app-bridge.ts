@@ -114,6 +114,34 @@ const PROXY_BASE_URL = (import.meta.env.VITE_RESENDBOX_PROXY_BASE_URL || HOSTED_
 const DEV_PROXY_BASE_URL = "/api/resend";
 const UNAUTHORIZED_PREFIX = "RESENDBOX_UNAUTHORIZED:";
 
+function ensureArray<T>(value: T[] | null | undefined): T[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function ensureStringArray(value: string[] | string | null | undefined): string[] {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+  }
+
+  if (typeof value === "string" && value.trim().length > 0) {
+    return [value.trim()];
+  }
+
+  return [];
+}
+
+function ensureRecord(value: Record<string, string> | null | undefined): Record<string, string> {
+  if (!value || Array.isArray(value) || typeof value !== "object") {
+    return {};
+  }
+
+  return value;
+}
+
+function ensureApiListData<T>(response: ApiListResponse<T> | null | undefined): T[] {
+  return Array.isArray(response?.data) ? response.data : [];
+}
+
 function buildDefaultSettings(): AppSettings {
   return {
     hasApiKey: false,
@@ -215,9 +243,9 @@ function resolveBrowserSettings() {
 function normalizeSent(email: SentApiRecord): SentEmail {
   return {
     id: email.id,
-    subject: email.subject,
-    to: email.to,
-    from: email.from,
+    subject: email.subject || "(No subject)",
+    to: ensureStringArray(email.to),
+    from: email.from || "",
     createdAt: email.created_at,
     status: email.last_event || "queued",
   };
@@ -241,28 +269,28 @@ function normalizeSentDetail(email: SentEmailDetailApiRecord, attachments: Attac
     ...normalizeSent(email),
     html: email.html ?? null,
     text: email.text ?? null,
-    cc: email.cc ?? [],
-    bcc: email.bcc ?? [],
-    replyTo: email.reply_to ?? [],
+    cc: ensureStringArray(email.cc),
+    bcc: ensureStringArray(email.bcc),
+    replyTo: ensureStringArray(email.reply_to),
     scheduledAt: email.scheduled_at ?? null,
-    attachments: attachments.map(normalizeAttachment),
+    attachments: ensureArray(attachments).map(normalizeAttachment),
   };
 }
 
 function normalizeReceived(email: ReceivedApiRecord): ReceivedEmail {
   return {
     id: email.id,
-    subject: email.subject,
-    to: email.to,
-    from: email.from,
+    subject: email.subject || "(No subject)",
+    to: ensureStringArray(email.to),
+    from: email.from || "",
     createdAt: email.created_at,
     messageId: email.message_id ?? null,
-    attachmentsCount: email.attachments?.length ?? 0,
+    attachmentsCount: ensureArray(email.attachments).length,
   };
 }
 
 function normalizeReceivedDetail(email: ReceivedEmailDetailApiRecord): ReceivedEmailDetail {
-  const attachments = (email.attachments ?? []).map((attachment) => ({
+  const attachments = ensureArray(email.attachments).map((attachment) => ({
     id: attachment.id,
     filename: attachment.filename || "attachment",
     contentType: attachment.content_type || "application/octet-stream",
@@ -275,10 +303,10 @@ function normalizeReceivedDetail(email: ReceivedEmailDetailApiRecord): ReceivedE
     ...normalizeReceived(email),
     html: email.html ?? null,
     text: email.text ?? null,
-    headers: email.headers ?? {},
-    cc: email.cc ?? [],
-    bcc: email.bcc ?? [],
-    replyTo: email.reply_to ?? [],
+    headers: ensureRecord(email.headers),
+    cc: ensureStringArray(email.cc),
+    bcc: ensureStringArray(email.bcc),
+    replyTo: ensureStringArray(email.reply_to),
     raw: email.raw
       ? {
           downloadUrl: email.raw.download_url,
@@ -438,7 +466,7 @@ const browserBridge = {
     }
 
     const response = await fetchResendJson<ApiListResponse<SentApiRecord>>(`/emails?limit=${limit}`, apiKey);
-    return response.data.map(normalizeSent);
+    return ensureApiListData(response).map(normalizeSent);
   },
 
   async listReceivedEmails(limit = 20) {
@@ -449,7 +477,7 @@ const browserBridge = {
     }
 
     const response = await fetchResendJson<ApiListResponse<ReceivedApiRecord>>(`/emails/receiving?limit=${limit}`, apiKey);
-    return response.data.map(normalizeReceived);
+    return ensureApiListData(response).map(normalizeReceived);
   },
 
   async getSentEmail(emailId: string) {
@@ -462,11 +490,11 @@ const browserBridge = {
     const [email, attachments] = await Promise.all([
       fetchResendJson<SentEmailDetailApiRecord>(`/emails/${emailId}`, apiKey),
       fetchResendJson<ApiListResponse<AttachmentApiRecord>>(`/emails/${emailId}/attachments`, apiKey).catch(() => ({
-        data: [],
+        data: [] as AttachmentApiRecord[],
       })),
     ]);
 
-    return normalizeSentDetail(email, attachments.data);
+    return normalizeSentDetail(email, ensureApiListData(attachments));
   },
 
   async getReceivedEmail(emailId: string) {
@@ -497,7 +525,7 @@ const browserBridge = {
           .filter(Boolean),
         subject: payload.subject.trim(),
         text: payload.text.trim(),
-        attachments: payload.attachments.map((attachment: ComposeAttachmentInput) => ({
+        attachments: (payload.attachments ?? []).map((attachment: ComposeAttachmentInput) => ({
           filename: attachment.filename,
           content: attachment.content,
         })),
