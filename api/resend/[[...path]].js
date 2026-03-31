@@ -1,5 +1,28 @@
 const RESEND_API_BASE_URL = "https://api.resend.com";
 
+function resolvePathSegments(req) {
+  const fromQuery = req.query?.path;
+
+  if (Array.isArray(fromQuery) && fromQuery.length > 0) {
+    return fromQuery;
+  }
+
+  if (typeof fromQuery === "string" && fromQuery.trim().length > 0) {
+    return fromQuery;
+  }
+
+  const rawUrl = typeof req.url === "string" ? req.url : "";
+  const pathWithoutQuery = rawUrl.split("?")[0] || "";
+  const match = pathWithoutQuery.match(/^\/?api\/resend\/?(.*)$/);
+  const derivedPath = match?.[1]?.trim();
+
+  if (!derivedPath) {
+    return "";
+  }
+
+  return derivedPath.split("/").filter(Boolean);
+}
+
 function buildTargetUrl(pathSegments, query) {
   const path = Array.isArray(pathSegments) ? pathSegments.join("/") : pathSegments || "";
 
@@ -43,11 +66,12 @@ export default async function handler(req, res) {
     return;
   }
 
-  const target = buildTargetUrl(req.query.path, req.query);
+  const resolvedPath = resolvePathSegments(req);
+  const target = buildTargetUrl(resolvedPath, req.query);
 
   if (!target) {
     res.status(404).json({
-      message: "Missing Resend proxy path.",
+      message: `Missing Resend proxy path for ${req.url || "/api/resend"}.`,
     });
     return;
   }
