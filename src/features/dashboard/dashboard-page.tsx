@@ -50,6 +50,9 @@ function connectionCopy(state: ReturnType<typeof useApp>["connection"]["state"],
 export function DashboardPage() {
   const { connection, copy, receivedEmails, refreshing, refreshData, sentEmails, settings } = useApp();
   const connectionMeta = connectionCopy(connection.state, copy);
+  const hasLiveData = connection.state === "connected";
+  const sentCount = hasLiveData ? String(sentEmails.length).padStart(2, "0") : "—";
+  const receivedCount = hasLiveData ? String(receivedEmails.length).padStart(2, "0") : "—";
 
   return (
     <PageTransition>
@@ -68,14 +71,14 @@ export function DashboardPage() {
           <StatCard
             icon={Mailbox}
             eyebrow={copy.dashboard.recentSends}
-            value={String(sentEmails.length).padStart(2, "0")}
+            value={sentCount}
             title={copy.dashboard.emailsInLatestSync}
             description={copy.dashboard.activityDescription}
           />
           <StatCard
             icon={Inbox}
             eyebrow={copy.dashboard.recentInbound}
-            value={String(receivedEmails.length).padStart(2, "0")}
+            value={receivedCount}
             title={copy.dashboard.inboxInLatestSync}
             description={copy.inboxPage.inboundHint}
           />

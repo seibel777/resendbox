@@ -138,8 +138,20 @@ function ensureRecord(value: Record<string, string> | null | undefined): Record<
   return value;
 }
 
-function ensureApiListData<T>(response: ApiListResponse<T> | null | undefined): T[] {
-  return Array.isArray(response?.data) ? response.data : [];
+function readApiListData<T>(
+  response: ApiListResponse<T> | null | undefined,
+  errorMessage: string,
+  options?: { allowMissing?: boolean },
+): T[] {
+  if (Array.isArray(response?.data)) {
+    return response.data;
+  }
+
+  if (options?.allowMissing) {
+    return [];
+  }
+
+  throw new Error(errorMessage);
 }
 
 function buildDefaultSettings(): AppSettings {
@@ -466,7 +478,7 @@ const browserBridge = {
     }
 
     const response = await fetchResendJson<ApiListResponse<SentApiRecord>>(`/emails?limit=${limit}`, apiKey);
-    return ensureApiListData(response).map(normalizeSent);
+    return readApiListData(response, "Unexpected response while loading sent emails.").map(normalizeSent);
   },
 
   async listReceivedEmails(limit = 20) {
@@ -477,7 +489,7 @@ const browserBridge = {
     }
 
     const response = await fetchResendJson<ApiListResponse<ReceivedApiRecord>>(`/emails/receiving?limit=${limit}`, apiKey);
-    return ensureApiListData(response).map(normalizeReceived);
+    return readApiListData(response, "Unexpected response while loading received emails.").map(normalizeReceived);
   },
 
   async getSentEmail(emailId: string) {
@@ -494,7 +506,10 @@ const browserBridge = {
       })),
     ]);
 
-    return normalizeSentDetail(email, ensureApiListData(attachments));
+    return normalizeSentDetail(
+      email,
+      readApiListData(attachments, "Unexpected response while loading email attachments.", { allowMissing: true }),
+    );
   },
 
   async getReceivedEmail(emailId: string) {
