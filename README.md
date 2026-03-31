@@ -124,11 +124,11 @@ In local development, the Vite setup keeps requests on the same app flow. For pr
 
 ### Vercel proxy mode
 
-The repository includes a Vercel serverless proxy at `api/resend/[[...path]].js`.
+The repository includes a Vercel rewrite-based proxy through `vercel.json`.
 
-That means you can host the frontend on Vercel and still keep a backend proxy on the same deployment.
+That means you can host the frontend on Vercel and forward `/api/resend/:path*` to the Resend API on the same deployment origin.
 
-The repository also includes `vercel.json` so SPA routes resolve to `index.html` without intercepting `/api/*` requests.
+`vercel.json` also rewrites SPA routes to `index.html` without intercepting `/api/*` requests.
 
 If you deploy on the default `*.vercel.app` domain, the frontend now automatically prefers `/api/resend`.
 
@@ -138,11 +138,7 @@ If you deploy on a custom domain, set:
 VITE_RESENDBOX_PROXY_BASE_URL=/api/resend
 ```
 
-If you want the proxy to use a server-side key instead of forwarding the user-provided Authorization header, also set:
-
-```bash
-RESEND_API_KEY=re_xxxxxxxxx
-```
+In this Vercel flow, the browser sends requests to the same deployment origin and Vercel forwards them to Resend.
 
 ### Inbox / received email
 

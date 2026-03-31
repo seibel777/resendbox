@@ -4,7 +4,11 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/:path((?!api/).*)",
+      "source": "/api/resend/:path*",
+      "destination": "https://api.resend.com/:path*"
+    },
+    {
+      "source": "^/(?!api/|assets/|icons/|manifest\\.webmanifest$|sw\\.js$|robots\\.txt$|sitemap\\.xml$|favicon\\.svg$|favicon\\.ico$).*$",
       "destination": "/index.html"
     }
   ]
