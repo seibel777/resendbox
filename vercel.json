@@ -2,14 +2,17 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
   "outputDirectory": "dist",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/resend/:path*",
-      "destination": "https://api.resend.com/:path*"
+      "src": "/api/resend/(.*)",
+      "dest": "https://api.resend.com/$1"
     },
     {
-      "source": "^/(?!api/|assets/|icons/|manifest\\.webmanifest$|sw\\.js$|robots\\.txt$|sitemap\\.xml$|favicon\\.svg$|favicon\\.ico$).*$",
-      "destination": "/index.html"
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
