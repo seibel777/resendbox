@@ -124,9 +124,11 @@ In local development, the Vite setup keeps requests on the same app flow. For pr
 
 ### Vercel proxy mode
 
-The repository includes a Vercel serverless proxy at `api/resend/[...path].js`.
+The repository includes a Vercel serverless proxy at `api/resend/[[...path]].js`.
 
 That means you can host the frontend on Vercel and still keep a backend proxy on the same deployment.
+
+The repository also includes `vercel.json` so SPA routes resolve to `index.html` without intercepting `/api/*` requests.
 
 If you deploy on the default `*.vercel.app` domain, the frontend now automatically prefers `/api/resend`.
 

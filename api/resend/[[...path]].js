@@ -2,6 +2,11 @@ const RESEND_API_BASE_URL = "https://api.resend.com";
 
 function buildTargetUrl(pathSegments, query) {
   const path = Array.isArray(pathSegments) ? pathSegments.join("/") : pathSegments || "";
+
+  if (!path) {
+    return null;
+  }
+
   const target = new URL(`${RESEND_API_BASE_URL}/${path}`);
 
   Object.entries(query).forEach(([key, value]) => {
@@ -39,6 +44,14 @@ export default async function handler(req, res) {
   }
 
   const target = buildTargetUrl(req.query.path, req.query);
+
+  if (!target) {
+    res.status(404).json({
+      message: "Missing Resend proxy path.",
+    });
+    return;
+  }
+
   const headers = {
     Authorization: authorization,
     Accept: req.headers.accept || "application/json",
