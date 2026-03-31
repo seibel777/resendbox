@@ -1,0 +1,21 @@
+[package]
+name = "resendbox"
+version = "0.1.0"
+description = "A polished local client for the Resend API"
+authors = ["OpenAI Codex"]
+edition = "2021"
+
+[lib]
+name = "resendbox_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+thiserror = "2"

@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ResendBox</title>
+    <script>
+      (function () {
+        var base = "/resendbox/";
+        var redirect = window.location.pathname + window.location.search + window.location.hash;
+        window.location.replace(base + "?redirect=" + encodeURIComponent(redirect));
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>

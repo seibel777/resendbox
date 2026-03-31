@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://seibel777.github.io/resendbox/sitemap.xml

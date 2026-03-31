@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="ResendBox is a multilingual client for professional business email workflows powered by Resend." />
+    <meta
+      name="keywords"
+      content="ResendBox, Resend client, professional email app, business email operations, PWA email dashboard, Tauri email client"
+    />
+    <meta name="author" content="Joao Pedro Seibel" />
+    <meta name="theme-color" content="#0ea5e9" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ResendBox" />
+    <meta property="og:title" content="ResendBox | Professional Email Operations for Business" />
+    <meta
+      property="og:description"
+      content="A multilingual Tauri and PWA client for professional business email workflows built on Resend."
+    />
+    <meta property="og:url" content="https://seibel777.github.io/resendbox/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ResendBox | Professional Email Operations for Business" />
+    <meta
+      name="twitter:description"
+      content="Multilingual business email operations with Resend, built for web, desktop and mobile."
+    />
+    <link rel="canonical" href="https://seibel777.github.io/resendbox/" />
+    <link rel="manifest" href="%BASE_URL%manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%icons/favicon.svg" />
+    <link rel="apple-touch-icon" href="%BASE_URL%icons/icon-192.svg" />
+    <title>ResendBox | Professional Email Operations for Business</title>
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var redirect = params.get("redirect");
+
+        if (redirect) {
+          window.history.replaceState(null, "", redirect);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
