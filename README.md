@@ -213,39 +213,16 @@ npm run tauri:dev
 
 The project now includes a small preflight script that explains this before calling Tauri.
 
-## GitHub Pages / web hosting
-
-For GitHub Pages builds:
-
-```bash
-GITHUB_PAGES=true npm run build
-```
-
 This sets the Vite base path to `/resendbox/` and includes a SPA fallback page for browser routing.
 
 ## Optional environment variables
 
 ### Backend proxy for web/PWA mode
 
-Use this when you want browser/PWA mode to talk to your own backend instead of calling Resend directly:
-
-```bash
-VITE_RESENDBOX_PROXY_BASE_URL=https://your-proxy.example.com
-```
-
 For same-origin Vercel hosting you can also use:
 
 ```bash
 VITE_RESENDBOX_PROXY_BASE_URL=/api/resend
-```
-
-### Optional AdSense support
-
-AdSense is intentionally optional and does not render unless both values exist:
-
-```bash
-VITE_ADSENSE_CLIENT_ID=ca-pub-xxxxxxxxxxxxxxxx
-VITE_ADSENSE_SLOT_ID=1234567890
 ```
 
 ## Notifications
@@ -257,34 +234,6 @@ ResendBox currently supports local notifications for:
 
 This is not the same as full push delivery. Background push notifications for email events would require an additional webhook + push backend or a native notification plugin workflow.
 
-## Security notes
-
-- no API key is hardcoded
-- the UI does not log the API key
-- access to the key is centralized through a bridge layer
-- Tauri mode keeps API access in native code
-- the API key is stored locally on the active device through the app storage layer
-
-## Current limitations
-
-- compose currently sends plain-text bodies with optional attachments
-- inbox only works when Resend inbound is configured
-- native Tauri runtime still depends on Rust being installed locally
-- full background push notifications are not implemented yet
-- secure OS keychain / vault storage is not implemented yet
-- threads are still future work
-
-## Future roadmap
-
-- threads
-- multiple accounts
-- advanced filters
-- advanced search
-- full inbox workflows
-- richer sync strategy
-- platform-specific credential storage
-- webhook-driven push notifications
-- automation management
 
 ## Product positioning
 
